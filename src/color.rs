@@ -1,10 +1,11 @@
 use crate::vec3::Vec3;
 use std::ops::Mul;
 
-type Color<T> = Vec3<T>;
+pub type Color<T> = Vec3<T>;
 
 pub fn write_color<T>(color: Color<T>)
-where f64: Mul<T, Output = f64>,
+where
+    f64: Mul<T, Output = f64>,
 {
     let (r, g, b) = (color.x, color.y, color.z);
 

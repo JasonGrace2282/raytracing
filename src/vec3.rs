@@ -1,3 +1,4 @@
+use num_traits::Float;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 #[derive(Debug, Copy, Clone)]
@@ -13,7 +14,24 @@ impl<T> Vec3<T> {
     }
 }
 
-impl<T: Add<Output = T>> Add for Vec3<T> {
+impl<T> Vec3<T>
+where
+    T: Float,
+{
+    pub fn unit_vector(&self) -> Vec3<T> {
+        let length = (self.x * self.x + self.y * self.y + self.z * self.z).sqrt();
+        Self {
+            x: self.x / length,
+            y: self.y / length,
+            z: self.z / length,
+        }
+    }
+}
+
+impl<T> Add for Vec3<T>
+where
+    T: Add<Output = T>,
+{
     type Output = Self;
 
     #[inline]
@@ -26,7 +44,10 @@ impl<T: Add<Output = T>> Add for Vec3<T> {
     }
 }
 
-impl<T: Sub<Output = T>> Sub for Vec3<T> {
+impl<T> Sub for Vec3<T>
+where
+    T: Sub<Output = T>,
+{
     type Output = Self;
 
     #[inline]
@@ -39,28 +60,34 @@ impl<T: Sub<Output = T>> Sub for Vec3<T> {
     }
 }
 
-impl<T: Mul<Output = T>> Mul for Vec3<T> {
-    type Output = Self;
+impl<T> Mul<T> for Vec3<T>
+where
+    T: Copy + Mul<Output = T>,
+{
+    type Output = Vec3<T>;
 
     #[inline]
-    fn mul(self, other: Self) -> Self {
+    fn mul(self, other: T) -> Self {
         Self {
-            x: self.x * other.x,
-            y: self.y * other.y,
-            z: self.z * other.z,
+            x: self.x * other,
+            y: self.y * other,
+            z: self.z * other,
         }
     }
 }
 
-impl<T: Div<Output = T>> Div for Vec3<T> {
-    type Output = Self;
+impl<T> Div<T> for Vec3<T>
+where
+    T: Copy + Div<Output = T>,
+{
+    type Output = Vec3<T>;
 
     #[inline]
-    fn div(self, other: Self) -> Self {
+    fn div(self, other: T) -> Self {
         Self {
-            x: self.x / other.x,
-            y: self.y / other.y,
-            z: self.z / other.z,
+            x: self.x / other,
+            y: self.y / other,
+            z: self.z / other,
         }
     }
 }
@@ -89,28 +116,28 @@ where
     }
 }
 
-impl<T> MulAssign for Vec3<T>
+impl<T> MulAssign<T> for Vec3<T>
 where
-    T: MulAssign,
+    T: Copy + MulAssign<T>,
 {
     #[inline]
-    fn mul_assign(&mut self, other: Self) {
-        self.x *= other.x;
-        self.y *= other.y;
-        self.z *= other.z;
+    fn mul_assign(&mut self, other: T) {
+        self.x *= other;
+        self.y *= other;
+        self.z *= other;
     }
 }
 
-impl<T> DivAssign for Vec3<T>
+impl<T> DivAssign<T> for Vec3<T>
 where
-    T: DivAssign,
+    T: Copy + DivAssign<T>,
 {
     #[inline]
-    fn div_assign(&mut self, other: Self) {
-        self.x /= other.x;
-        self.y /= other.y;
-        self.z /= other.z;
+    fn div_assign(&mut self, other: T) {
+        self.x /= other;
+        self.y /= other;
+        self.z /= other;
     }
 }
 
-type Point<T> = Vec3<T>;
+pub type Point<T> = Vec3<T>;
