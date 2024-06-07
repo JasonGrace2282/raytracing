@@ -19,26 +19,30 @@ where
     T: Float,
 {
     pub fn unit_vector(&self) -> Vec3<T> {
-        let length = (self.x * self.x + self.y * self.y + self.z * self.z).sqrt();
+        let length = self.length();
         Self {
             x: self.x / length,
             y: self.y / length,
             z: self.z / length,
         }
     }
+
+    pub fn length(&self) -> T {
+        self.length_squared().sqrt()
+    }
+
+    pub fn length_squared(&self) -> T {
+        self.x * self.x + self.y * self.y + self.z * self.z
+    }
 }
 
 impl<T> Vec3<T>
 where
-    T: Mul<Output=T>+Add<Output=T>+Sub<Output=T> + Copy
+    T: Mul<Output = T> + Add<Output = T> + Sub<Output = T> + Copy,
 {
-
     pub fn dot(&self, other: &Vec3<T>) -> T {
-        self.x * other.x
-        + self.y * other.y
-        + self.z * other.z
+        self.x * other.x + self.y * other.y + self.z * other.z
     }
-
 
     pub fn cross(&self, other: &Vec3<T>) -> Vec3<T> {
         Vec3::new(

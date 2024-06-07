@@ -1,30 +1,30 @@
 use indicatif::{ProgressBar, ProgressStyle};
+use num_traits::Float;
 use raytrace::{
     color::{write_color, Color},
     ray::Ray,
     vec3::Vec3,
 };
-use num_traits::Float;
 
 fn hits_sphere<T>(center: Vec3<T>, radius: T, ray: Ray<T>) -> Option<T>
 where
     T: Float,
 {
     let oc = center - *ray.get_origin();
-    let a = ray.get_direction().dot(&ray.get_direction());
-    let b = ray.get_direction().dot(&oc) * T::from(-2.0)?;
-    let c = oc.dot(&oc) - radius * radius;
-    let discriminant = b * b - T::from(4)? * a * c;
+    let a = ray.get_direction().length_squared();
+    let h = ray.get_direction().dot(&oc);
+    let c = oc.length_squared() - radius * radius;
+    let discriminant = h * h - a * c;
     if discriminant < T::from(0)? {
         return None;
     }
-    Some((-b - discriminant.sqrt()) / (T::from(2.0)? * a))
+    Some((h - discriminant.sqrt()) / a)
 }
 
 fn ray_color(ray: &Ray<f64>) -> Color<f64> {
     if let Some(t) = hits_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, *ray) {
         let n = (ray.at(t) - Vec3::new(0.0, 0.0, -1.0)).unit_vector();
-        return Color::new(n.x+1.0, n.y+1.0, n.z+1.0) * 0.5;
+        return Color::new(n.x + 1.0, n.y + 1.0, n.z + 1.0) * 0.5;
     }
     let unit_direction = ray.get_direction().unit_vector();
     let a = (unit_direction.y + 1.0) * 0.5;
