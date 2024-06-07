@@ -4,8 +4,23 @@ use raytrace::{
     ray::Ray,
     vec3::Vec3,
 };
+use num_traits::Float;
+
+fn hits_sphere<T>(center: Vec3<T>, radius: T, ray: Ray<T>) -> bool
+where
+    T: Float,
+{
+    let oc = center - *ray.get_origin();
+    let a = ray.get_direction().dot(&ray.get_direction());
+    let b = ray.get_direction().dot(&oc) * T::from(-2.0).unwrap();
+    let c = oc.dot(&oc) - radius * radius;
+    b * b - T::from(4).unwrap() * a * c >= T::from(0).unwrap()
+}
 
 fn ray_color(ray: &Ray<f64>) -> Color<f64> {
+    if hits_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, *ray) {
+        return Color::new(1.0, 0.0, 0.0);
+    }
     let unit_direction = ray.get_direction().unit_vector();
     let a = (unit_direction.y + 1.0) * 0.5;
     Color::new(1.0, 1.0, 1.0) * (1.0 - a) + Color::new(0.5, 0.7, 1.0) * a

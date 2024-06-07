@@ -28,6 +28,27 @@ where
     }
 }
 
+impl<T> Vec3<T>
+where
+    T: Mul<Output=T>+Add<Output=T>+Sub<Output=T> + Copy
+{
+
+    pub fn dot(&self, other: &Vec3<T>) -> T {
+        self.x * other.x
+        + self.y * other.y
+        + self.z * other.z
+    }
+
+
+    pub fn cross(&self, other: &Vec3<T>) -> Vec3<T> {
+        Vec3::new(
+            self.y * other.z - self.z * other.y,
+            self.z * other.x - self.x * other.z,
+            self.x * other.y - self.y * other.x,
+        )
+    }
+}
+
 impl<T> Add for Vec3<T>
 where
     T: Add<Output = T>,

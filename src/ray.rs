@@ -1,7 +1,7 @@
 use crate::vec3::{Point, Vec3};
 use std::ops::{Add, Mul};
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Ray<T> {
     origin: Point<T>,
     dir: Vec3<T>,
