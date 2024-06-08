@@ -1,7 +1,8 @@
-mod color;
 pub mod hit;
-mod interval;
-mod ray;
 pub mod sphere;
 pub mod utils;
+pub mod camera;
+mod interval;
+mod ray;
 mod vec3;
+mod color;
