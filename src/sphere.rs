@@ -1,41 +1,29 @@
 use crate::{
-    hit::{Hittable, HitRecord},
-    utils::{
-        Vec3,
-        Point,
-        Ray,
-        Float
-    }
+    hit::{HitRecord, Hittable},
+    utils::{Float, Interval, Point, Ray, Vec3},
 };
-
 
 #[derive(Debug, Copy, Clone)]
 pub struct Sphere<T> {
     center: Point<T>,
-    radius: T
+    radius: T,
 }
 
-impl<T: Float> Sphere<T>
-{
-    pub fn new(center: Vec3<T>, r: T) -> Sphere<T>
-    {
+impl<T: Float> Sphere<T> {
+    pub fn new(center: Vec3<T>, r: T) -> Sphere<T> {
         let mut radius = T::from(0).unwrap();
         if r > T::from(0).unwrap() {
             radius = r;
         }
-        Self {
-            center,
-            radius,
-        }
+        Self { center, radius }
     }
 }
 
 impl<T> Hittable<T> for Sphere<T>
 where
-    T: Copy + Float
+    T: Copy + Float,
 {
-    fn hit(&self, ray: &Ray<T>, ray_tmin: T, ray_tmax: T) -> Option<HitRecord<T>>
-    {
+    fn hit(&self, ray: &Ray<T>, ray_t: Interval<T>) -> Option<HitRecord<T>> {
         let oc = self.center - *ray.get_origin();
         let a = ray.get_direction().length_squared();
         let h = ray.get_direction().dot(&oc);
@@ -45,9 +33,12 @@ where
             return None;
         }
         let sqrt = discriminant.sqrt();
-        let root = (h - sqrt) / a;
-        if root <= ray_tmin || ray_tmax  <= root {
-            return None;
+        let mut root = (h - sqrt) / a;
+        if !ray_t.surrounds(root) {
+            root = (h + sqrt) / a;
+            if !ray_t.surrounds(root) {
+                return None;
+            }
         }
 
         let point = ray.at(root);

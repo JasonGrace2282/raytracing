@@ -1,9 +1,4 @@
-use crate::utils::{
-    Ray,
-    Point,
-    Vec3,
-    Rc,
-};
+use crate::utils::{Interval, Point, Ray, Rc, Vec3};
 use num_traits::Float;
 
 #[derive(Debug, Copy, Clone)]
@@ -16,10 +11,9 @@ pub struct HitRecord<T> {
 
 impl<T> HitRecord<T>
 where
-    T: Copy + Float
+    T: Copy + Float,
 {
-    pub fn new(point: Point<T>, normal: Vec3<T>, t: T, ray: &Ray<T>) -> HitRecord<T>
-    {
+    pub fn new(point: Point<T>, normal: Vec3<T>, t: T, ray: &Ray<T>) -> HitRecord<T> {
         let mut instance = Self {
             point,
             normal,
@@ -31,11 +25,11 @@ where
     }
 
     pub fn front_face(&self) -> bool {
-        self.front.expect("ERROR:: Failed to call set_front_face before getting value")
+        self.front
+            .expect("ERROR:: Failed to call set_front_face before getting value")
     }
 
-    pub fn set_front_face(&mut self, ray: &Ray<T>, outward_normal: Vec3<T>)
-    {
+    pub fn set_front_face(&mut self, ray: &Ray<T>, outward_normal: Vec3<T>) {
         self.front = Some(ray.get_direction().dot(&outward_normal) < T::from(0).unwrap());
         if let Some(f) = self.front {
             self.normal = match f {
@@ -47,18 +41,16 @@ where
 }
 
 pub trait Hittable<T> {
-    fn hit(&self, ray: &Ray<T>, ray_tmin: T, ray_tmax: T) -> Option<HitRecord<T>>;
+    fn hit(&self, ray: &Ray<T>, ray_t: Interval<T>) -> Option<HitRecord<T>>;
 }
 
 pub struct HittableList<T> {
-    objects: Vec<Rc<dyn Hittable<T>>>
+    objects: Vec<Rc<dyn Hittable<T>>>,
 }
 
 impl<T> HittableList<T> {
     pub fn new() -> HittableList<T> {
-        Self {
-            objects: vec![]
-        }
+        Self { objects: vec![] }
     }
 
     pub fn add(&mut self, obj: Rc<dyn Hittable<T>>) {
@@ -72,15 +64,15 @@ impl<T> HittableList<T> {
 
 impl<T> Hittable<T> for HittableList<T>
 where
-    T: Copy
+    T: Copy,
 {
-    fn hit(&self, ray: &Ray<T>, ray_tmin: T, ray_tmax: T) -> Option<HitRecord<T>>
-    {
+    fn hit(&self, ray: &Ray<T>, ray_t: Interval<T>) -> Option<HitRecord<T>> {
         let mut record: Option<HitRecord<T>> = None;
-        let mut closest = ray_tmax;
+        let mut closest: T = ray_t.max;
 
         for object in self.objects.iter() {
-            if let Some(r) = object.hit(ray, ray_tmin, closest) {
+            let interval = Interval::new(ray_t.min, closest);
+            if let Some(r) = object.hit(ray, interval) {
                 record = Some(r);
                 closest = record.unwrap().t;
             }

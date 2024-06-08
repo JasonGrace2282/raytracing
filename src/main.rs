@@ -1,19 +1,13 @@
 use indicatif::{ProgressBar, ProgressStyle};
 use raytrace::{
-    hit::{HittableList, Hittable},
+    hit::{Hittable, HittableList},
     sphere::Sphere,
-    utils::{
-        write_color,
-        Color,
-        Ray,
-        Vec3,
-        Point,
-        Rc,
-    }
+    utils::{write_color, Color, Interval, Point, Ray, Rc, Vec3},
 };
 
 fn ray_color(world: &HittableList<f64>, ray: &Ray<f64>) -> Color<f64> {
-    if let Some(rec) = world.hit(ray, 0.0, f64::INFINITY) {
+    let interval = Interval::new(0.0, f64::INFINITY);
+    if let Some(rec) = world.hit(ray, interval) {
         return (rec.normal + Color::new(1.0, 1.0, 1.0)) * 0.5;
     }
     let unit_direction = ray.get_direction().unit_vector();
@@ -32,7 +26,6 @@ fn main() {
     let mut world: HittableList<f64> = HittableList::new();
     world.add(Rc::new(Sphere::new(Point::new(0.0, 0.0, -1.0), 0.5)));
     world.add(Rc::new(Sphere::new(Point::new(0.0, -100.5, -1.0), 100.0)));
-
 
     // Camera setup
     let focal_length = 1.0;
