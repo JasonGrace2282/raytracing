@@ -1,30 +1,20 @@
 use indicatif::{ProgressBar, ProgressStyle};
-use num_traits::Float;
 use raytrace::{
-    color::{write_color, Color},
-    ray::Ray,
-    vec3::Vec3,
+    hit::{HittableList, Hittable},
+    sphere::Sphere,
+    utils::{
+        write_color,
+        Color,
+        Ray,
+        Vec3,
+        Point,
+        Rc,
+    }
 };
 
-fn hits_sphere<T>(center: Vec3<T>, radius: T, ray: Ray<T>) -> Option<T>
-where
-    T: Float,
-{
-    let oc = center - *ray.get_origin();
-    let a = ray.get_direction().length_squared();
-    let h = ray.get_direction().dot(&oc);
-    let c = oc.length_squared() - radius * radius;
-    let discriminant = h * h - a * c;
-    if discriminant < T::from(0)? {
-        return None;
-    }
-    Some((h - discriminant.sqrt()) / a)
-}
-
-fn ray_color(ray: &Ray<f64>) -> Color<f64> {
-    if let Some(t) = hits_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, *ray) {
-        let n = (ray.at(t) - Vec3::new(0.0, 0.0, -1.0)).unit_vector();
-        return Color::new(n.x + 1.0, n.y + 1.0, n.z + 1.0) * 0.5;
+fn ray_color(world: &HittableList<f64>, ray: &Ray<f64>) -> Color<f64> {
+    if let Some(rec) = world.hit(ray, 0.0, f64::INFINITY) {
+        return (rec.normal + Color::new(1.0, 1.0, 1.0)) * 0.5;
     }
     let unit_direction = ray.get_direction().unit_vector();
     let a = (unit_direction.y + 1.0) * 0.5;
@@ -38,6 +28,11 @@ fn main() {
     if image_height < 1.0 {
         image_height = 1.0;
     }
+
+    let mut world: HittableList<f64> = HittableList::new();
+    world.add(Rc::new(Sphere::new(Point::new(0.0, 0.0, -1.0), 0.5)));
+    world.add(Rc::new(Sphere::new(Point::new(0.0, -100.5, -1.0), 100.0)));
+
 
     // Camera setup
     let focal_length = 1.0;
@@ -76,7 +71,7 @@ fn main() {
             let ray_direction = pixel_center - camera_center;
             let ray = Ray::new(camera_center, ray_direction);
 
-            let color = ray_color(&ray);
+            let color = ray_color(&world, &ray);
 
             write_color(color)
         }
