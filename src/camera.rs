@@ -15,6 +15,7 @@ pub struct Camera {
     pixel100_loc: Point<f64>,
     pixel_delta_u: Vec3<f64>,
     pixel_delta_v: Vec3<f64>,
+    max_depth: i32,
     progress: ProgressBar,
 }
 
@@ -28,6 +29,8 @@ impl Default for Camera {
         let viewport_height = 2.0;
 
         let samples_per_pixel = 1;
+
+        let max_depth = 10;
 
         // computed stuff goes here
         let mut image_height = image_width / aspect_ratio;
@@ -69,6 +72,7 @@ impl Default for Camera {
             pixel100_loc,
             pixel_delta_u,
             pixel_delta_v,
+            max_depth,
             progress,
         }
     }
@@ -84,7 +88,7 @@ impl Camera {
                 let mut color = Color::new(0.0, 0.0, 0.0);
                 for _ in 0..self.samples_per_pixel {
                     let ray = self.get_ray(i, j);
-                    color += Self::ray_color(&world, ray);
+                    color += Self::ray_color(&world, ray, self.max_depth);
                 }
                 write_color(color * self.sample_pixel_scale)
             }
@@ -93,11 +97,14 @@ impl Camera {
         self.progress.finish();
     }
 
-    fn ray_color(world: &HittableList<f64>, ray: Ray<f64>) -> Color<f64> {
+    fn ray_color(world: &HittableList<f64>, ray: Ray<f64>, depth: i32) -> Color<f64> {
+        if depth <= 0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
         let interval = Interval::new(0.0, f64::INFINITY);
         if let Some(rec) = world.hit(&ray, interval) {
             let direction = random_on_hemisphere(&rec.normal);
-            return Self::ray_color(world, Ray::new(rec.point, direction)) * 0.5;
+            return Self::ray_color(world, Ray::new(rec.point, direction), depth-1) * 0.5;
         }
         let unit_direction = ray.get_direction().unit_vector();
         let a = (unit_direction.y + 1.0) * 0.5;
