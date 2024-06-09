@@ -1,6 +1,6 @@
 use crate::{
     hit::{Hittable, HittableList},
-    utils::{write_color, Color, Interval, Point, Ray, Vec3, rand_float},
+    utils::{rand_float, random_on_hemisphere, write_color, Color, Interval, Point, Ray, Vec3},
 };
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -27,7 +27,7 @@ impl Default for Camera {
         let focal_length = 1.0;
         let viewport_height = 2.0;
 
-        let samples_per_pixel = 100;
+        let samples_per_pixel = 1;
 
         // computed stuff goes here
         let mut image_height = image_width / aspect_ratio;
@@ -96,7 +96,8 @@ impl Camera {
     fn ray_color(world: &HittableList<f64>, ray: Ray<f64>) -> Color<f64> {
         let interval = Interval::new(0.0, f64::INFINITY);
         if let Some(rec) = world.hit(&ray, interval) {
-            return (rec.normal + Color::new(1.0, 1.0, 1.0)) * 0.5;
+            let direction = random_on_hemisphere(&rec.normal);
+            return Self::ray_color(world, Ray::new(rec.point, direction)) * 0.5;
         }
         let unit_direction = ray.get_direction().unit_vector();
         let a = (unit_direction.y + 1.0) * 0.5;

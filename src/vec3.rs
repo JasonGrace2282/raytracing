@@ -1,6 +1,25 @@
 use num_traits::Float;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
+use crate::utils::{rand_float, rand_from_range};
+
+fn rand_in_unit_sphere() -> Vec3<f64> {
+    loop {
+        let p = Vec3::<f64>::rand_from_range(-1.0, 1.0);
+        if p.length_squared() < 1.0 {
+            return p;
+        }
+    }
+}
+
+pub fn random_on_hemisphere(normal: &Vec3<f64>) -> Vec3<f64> {
+    let on_unit_sphere = rand_in_unit_sphere().unit_vector();
+    if on_unit_sphere.dot(normal) > 0.0 {
+        return on_unit_sphere;
+    }
+    on_unit_sphere * -1.0
+}
+
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3<T> {
     pub x: T,
@@ -11,6 +30,22 @@ pub struct Vec3<T> {
 impl<T> Vec3<T> {
     pub fn new(x: T, y: T, z: T) -> Vec3<T> {
         Vec3 { x, y, z }
+    }
+
+    pub fn rand() -> Vec3<f64> {
+        Vec3::new(
+            rand_float(),
+            rand_float(),
+            rand_float(),
+        )
+    }
+
+    pub fn rand_from_range(min: f64, max: f64) -> Vec3<f64> {
+        Vec3::new(
+            rand_from_range(min..max),
+            rand_from_range(min..max),
+            rand_from_range(min..max),
+        )
     }
 }
 
