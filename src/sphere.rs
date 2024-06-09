@@ -1,21 +1,21 @@
 use crate::{
-    hit::{HitRecord, Hittable},
-    utils::{Float, Interval, Point, Ray, Vec3},
+    hit::{HitRecord, Hittable}, material::Material, utils::{Float, Interval, Point, Ray, Vec3, Rc}
 };
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct Sphere<T> {
     center: Point<T>,
     radius: T,
+    mat: Rc<dyn Material<T>>
 }
 
 impl<T: Float> Sphere<T> {
-    pub fn new(center: Vec3<T>, r: T) -> Sphere<T> {
+    pub fn new(center: Vec3<T>, r: T, mat: Rc<dyn Material<T>>) -> Sphere<T> {
         let mut radius = T::from(0).unwrap();
         if r > T::from(0).unwrap() {
             radius = r;
         }
-        Self { center, radius }
+        Self { center, radius, mat, }
     }
 }
 
@@ -46,7 +46,8 @@ where
             point,
             (point - self.center) / self.radius,
             root,
-            ray,
+            &ray,
+            self.mat.clone(),
         ))
     }
 }

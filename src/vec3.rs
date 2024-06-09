@@ -1,5 +1,6 @@
 use num_traits::Float;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::convert::From;
 
 use crate::utils::{rand_float, rand_from_range};
 
@@ -18,6 +19,14 @@ pub fn random_on_hemisphere(normal: &Vec3<f64>) -> Vec3<f64> {
         return on_unit_sphere;
     }
     on_unit_sphere * -1.0
+}
+
+#[inline]
+pub fn reflect<T>(v: Vec3<T>, n: Vec3<T>) -> Vec3<T>
+where
+    T: Float
+{
+    v - n * T::from(2.0).unwrap() * v.dot(&n)
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -64,6 +73,11 @@ where
 
     pub fn length_squared(&self) -> T {
         self.x * self.x + self.y * self.y + self.z * self.z
+    }
+
+    pub fn near_zero(&self) -> bool {
+        let s = T::from(1e-8).unwrap();
+        self.x.abs() < s && self.y.abs() < s && self.z.abs() < s
     }
 }
 
@@ -132,6 +146,19 @@ where
     }
 }
 
+impl<T> Vec3<T>
+where
+    T: Mul<T, Output=T> + Copy
+{
+    pub fn mul_vec3(&self, other: Vec3<T>) -> Vec3<T> {
+        Self {
+            x: self.x * other.x,
+            y: self.y * other.y,
+            z: self.z * other.z,
+        }
+    }
+}
+
 impl<T> Div<T> for Vec3<T>
 where
     T: Copy + Div<Output = T>,
@@ -193,6 +220,19 @@ where
         self.x /= other;
         self.y /= other;
         self.z /= other;
+    }
+}
+
+impl<T> From<T> for Vec3<T>
+where
+    T: Copy
+{
+    fn from(value: T) -> Vec3<T> {
+        Self {
+            x: value,
+            y: value,
+            z: value,
+        }
     }
 }
 

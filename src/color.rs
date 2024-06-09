@@ -3,7 +3,7 @@ use crate::{interval::Interval, utils::Float, vec3::Vec3};
 pub type Color<T> = Vec3<T>;
 
 fn gamma_correct<T: Float>(linear: T) -> T {
-    if (linear > T::from(0.0).unwrap()) {
+    if linear > T::from(0.0).unwrap() {
         return linear.sqrt();
     }
     T::from(0.0).unwrap()

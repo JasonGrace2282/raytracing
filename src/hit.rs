@@ -1,11 +1,12 @@
-use crate::utils::{Interval, Point, Ray, Rc, Vec3};
+use crate::{material::Material, utils::{Interval, Point, Ray, Rc, Vec3}};
 use num_traits::Float;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct HitRecord<T> {
     pub point: Point<T>,
     pub normal: Vec3<T>,
     pub t: T,
+    pub material: Rc<dyn Material<T>>,
     front: Option<bool>,
 }
 
@@ -13,12 +14,13 @@ impl<T> HitRecord<T>
 where
     T: Copy + Float,
 {
-    pub fn new(point: Point<T>, normal: Vec3<T>, t: T, ray: &Ray<T>) -> HitRecord<T> {
+    pub fn new(point: Point<T>, normal: Vec3<T>, t: T, ray: &Ray<T>, material: Rc<dyn Material<T>>) -> HitRecord<T> {
         let mut instance = Self {
             point,
             normal,
             t,
             front: None,
+            material,
         };
         instance.set_front_face(ray, normal);
         instance
@@ -79,8 +81,8 @@ where
         for object in self.objects.iter() {
             let interval = Interval::new(ray_t.min, closest);
             if let Some(r) = object.hit(ray, interval) {
-                record = Some(r);
-                closest = record.unwrap().t;
+                record = Some(r.clone());
+                closest = record.as_ref().unwrap().t;
             }
         }
 
