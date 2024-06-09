@@ -35,4 +35,8 @@ where
     pub fn surrounds(&self, x: T) -> bool {
         self.min < x && x < self.max
     }
+
+    pub fn clamp(&self, x: T) -> T {
+        x.clamp(self.min, self.max)
+    }
 }
