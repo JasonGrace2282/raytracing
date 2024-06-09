@@ -9,7 +9,7 @@ pub use num_traits::Float;
 
 pub use crate::{color::*, interval::*, ray::*, vec3::*};
 
-pub const PI: f64 = 3.1415926535897;
+pub const PI: f64 = std::f64::consts::PI;
 
 #[inline]
 pub fn deg_to_rad<T>(deg: T) -> T

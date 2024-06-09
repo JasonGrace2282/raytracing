@@ -48,6 +48,12 @@ pub struct HittableList<T> {
     objects: Vec<Rc<dyn Hittable<T>>>,
 }
 
+impl<T> Default for HittableList<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T> HittableList<T> {
     pub fn new() -> HittableList<T> {
         Self { objects: vec![] }

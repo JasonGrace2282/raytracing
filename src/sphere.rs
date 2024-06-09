@@ -46,7 +46,7 @@ where
             point,
             (point - self.center) / self.radius,
             root,
-            &ray,
+            ray,
         ))
     }
 }
