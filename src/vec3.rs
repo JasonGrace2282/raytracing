@@ -33,11 +33,7 @@ impl<T> Vec3<T> {
     }
 
     pub fn rand() -> Vec3<f64> {
-        Vec3::new(
-            rand_float(),
-            rand_float(),
-            rand_float(),
-        )
+        Vec3::new(rand_float(), rand_float(), rand_float())
     }
 
     pub fn rand_from_range(min: f64, max: f64) -> Vec3<f64> {

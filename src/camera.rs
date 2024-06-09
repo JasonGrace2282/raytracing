@@ -116,10 +116,6 @@ impl Camera {
     }
 
     fn sample_square() -> Vec3<f64> {
-        Vec3::new(
-            rand_float() - 0.5,
-            rand_float() - 0.5,
-            0.0
-        )
+        Vec3::new(rand_float() - 0.5, rand_float() - 0.5, 0.0)
     }
 }
