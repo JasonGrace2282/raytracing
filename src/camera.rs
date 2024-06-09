@@ -82,9 +82,9 @@ impl Camera {
             self.progress.inc(1);
             for i in 0..self.image_width as i32 {
                 let mut color = Color::new(0.0, 0.0, 0.0);
-                let ray = self.get_ray(i, j);
                 for _ in 0..self.samples_per_pixel {
-                    color += Self::ray_color(&world, &ray);
+                    let ray = self.get_ray(i, j);
+                    color += Self::ray_color(&world, ray);
                 }
                 write_color(color * self.sample_pixel_scale)
             }
@@ -93,9 +93,9 @@ impl Camera {
         self.progress.finish();
     }
 
-    fn ray_color(world: &HittableList<f64>, ray: &Ray<f64>) -> Color<f64> {
+    fn ray_color(world: &HittableList<f64>, ray: Ray<f64>) -> Color<f64> {
         let interval = Interval::new(0.0, f64::INFINITY);
-        if let Some(rec) = world.hit(ray, interval) {
+        if let Some(rec) = world.hit(&ray, interval) {
             return (rec.normal + Color::new(1.0, 1.0, 1.0)) * 0.5;
         }
         let unit_direction = ray.get_direction().unit_vector();
