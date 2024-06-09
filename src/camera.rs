@@ -1,6 +1,6 @@
 use crate::{
     hit::{Hittable, HittableList},
-    utils::{rand_float, random_on_hemisphere, write_color, Color, Interval, Point, Ray, Vec3},
+    utils::{rand_float, rand_in_unit_sphere, write_color, Color, Interval, Point, Ray, Vec3},
 };
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -103,8 +103,8 @@ impl Camera {
         }
         let interval = Interval::new(0.000000001, f64::INFINITY);
         if let Some(rec) = world.hit(&ray, interval) {
-            let direction = random_on_hemisphere(&rec.normal);
-            return Self::ray_color(world, Ray::new(rec.point, direction), depth-1) * 0.5;
+            let direction = rec.normal + rand_in_unit_sphere().unit_vector();
+            return Self::ray_color(world, Ray::new(rec.point, direction), depth-1) * 0.7;
         }
         let unit_direction = ray.get_direction().unit_vector();
         let a = (unit_direction.y + 1.0) * 0.5;

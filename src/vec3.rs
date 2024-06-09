@@ -3,7 +3,7 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 use crate::utils::{rand_float, rand_from_range};
 
-fn rand_in_unit_sphere() -> Vec3<f64> {
+pub fn rand_in_unit_sphere() -> Vec3<f64> {
     loop {
         let p = Vec3::<f64>::rand_from_range(-1.0, 1.0);
         if p.length_squared() < 1.0 {
