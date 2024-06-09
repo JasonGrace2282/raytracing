@@ -28,7 +28,7 @@ impl Default for Camera {
         let focal_length = 1.0;
         let viewport_height = 2.0;
 
-        let samples_per_pixel = 1;
+        let samples_per_pixel = 10;
 
         let max_depth = 10;
 
@@ -101,7 +101,7 @@ impl Camera {
         if depth <= 0 {
             return Color::new(0.0, 0.0, 0.0);
         }
-        let interval = Interval::new(0.0, f64::INFINITY);
+        let interval = Interval::new(0.000000001, f64::INFINITY);
         if let Some(rec) = world.hit(&ray, interval) {
             let direction = random_on_hemisphere(&rec.normal);
             return Self::ray_color(world, Ray::new(rec.point, direction), depth-1) * 0.5;
