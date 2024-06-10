@@ -1,12 +1,14 @@
 use crate::{
-    hit::{HitRecord, Hittable}, material::Material, utils::{Float, Interval, Point, Ray, Vec3, Rc}
+    hit::{HitRecord, Hittable},
+    material::Material,
+    utils::{Float, Interval, Point, Ray, Rc, Vec3},
 };
 
 #[derive(Debug, Clone)]
 pub struct Sphere<T> {
     center: Point<T>,
     radius: T,
-    mat: Rc<dyn Material<T>>
+    mat: Rc<dyn Material<T>>,
 }
 
 impl<T: Float> Sphere<T> {
@@ -15,7 +17,11 @@ impl<T: Float> Sphere<T> {
         if r > T::from(0).unwrap() {
             radius = r;
         }
-        Self { center, radius, mat, }
+        Self {
+            center,
+            radius,
+            mat,
+        }
     }
 }
 

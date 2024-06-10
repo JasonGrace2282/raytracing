@@ -1,6 +1,6 @@
 use num_traits::Float;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use std::convert::From;
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 use crate::utils::{rand_float, rand_from_range};
 
@@ -24,7 +24,7 @@ pub fn random_on_hemisphere(normal: &Vec3<f64>) -> Vec3<f64> {
 #[inline]
 pub fn reflect<T>(v: Vec3<T>, n: Vec3<T>) -> Vec3<T>
 where
-    T: Float
+    T: Float,
 {
     v - n * T::from(2.0).unwrap() * v.dot(&n)
 }
@@ -148,7 +148,7 @@ where
 
 impl<T> Vec3<T>
 where
-    T: Mul<T, Output=T> + Copy
+    T: Mul<T, Output = T> + Copy,
 {
     pub fn mul_vec3(&self, other: Vec3<T>) -> Vec3<T> {
         Self {
@@ -225,7 +225,7 @@ where
 
 impl<T> From<T> for Vec3<T>
 where
-    T: Copy
+    T: Copy,
 {
     fn from(value: T) -> Vec3<T> {
         Self {

@@ -1,4 +1,7 @@
-use crate::{material::Material, utils::{Interval, Point, Ray, Rc, Vec3}};
+use crate::{
+    material::Material,
+    utils::{Interval, Point, Ray, Rc, Vec3},
+};
 use num_traits::Float;
 
 #[derive(Debug, Clone)]
@@ -14,7 +17,13 @@ impl<T> HitRecord<T>
 where
     T: Copy + Float,
 {
-    pub fn new(point: Point<T>, normal: Vec3<T>, t: T, ray: &Ray<T>, material: Rc<dyn Material<T>>) -> HitRecord<T> {
+    pub fn new(
+        point: Point<T>,
+        normal: Vec3<T>,
+        t: T,
+        ray: &Ray<T>,
+        material: Rc<dyn Material<T>>,
+    ) -> HitRecord<T> {
         let mut instance = Self {
             point,
             normal,
