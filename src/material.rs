@@ -30,7 +30,7 @@ where
     T: Float,
     Vec3<T>: From<Vec3<f64>>,
 {
-    fn scatter(&self, ray_in: &Ray<T>, record: &HitRecord<T>) -> Option<(Color<T>, Ray<T>)> {
+    fn scatter(&self, _ray_in: &Ray<T>, record: &HitRecord<T>) -> Option<(Color<T>, Ray<T>)> {
         let mut scatter_direction =
             record.normal + Into::<Vec3<T>>::into(rand_in_unit_sphere()).unit_vector();
 

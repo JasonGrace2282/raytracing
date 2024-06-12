@@ -1,6 +1,5 @@
 use crate::{
     hit::{Hittable, HittableList},
-    material::Material,
     utils::{rand_float, write_color, Color, Interval, Point, Ray, Vec3},
 };
 use indicatif::{ProgressBar, ProgressStyle};

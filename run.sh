@@ -1,6 +1,6 @@
 [ -z "${IMAGEPATH}" ] && IMAGEPATH="$(dirname -- "$0")/image.ppm"
 
-cargo run > "${IMAGEPATH}" || {
+cargo run --release > "${IMAGEPATH}" || {
   echo "Runtime Error, exiting...";
   exit 1
 }
