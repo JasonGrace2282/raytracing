@@ -1,6 +1,6 @@
 use crate::{
     hit::HitRecord,
-    utils::{rand_in_unit_sphere, Color, Float, Ray, Vec3},
+    utils::{rand_float, rand_in_unit_sphere, Color, Float, Ray, Vec3},
 };
 use std::fmt;
 
@@ -87,6 +87,18 @@ impl<T> Dielectric<T> {
     }
 }
 
+impl<T> Dielectric<T>
+where
+    T: Float,
+{
+    fn reflectance(cosine: T, reflection_index: T) -> T {
+        let mut r0 =
+            (T::from(1.0).unwrap() - reflection_index) / (T::from(1.0).unwrap() + reflection_index);
+        r0 = r0 * r0;
+        r0 + (T::from(1.0).unwrap() - r0) * (T::from(1.0).unwrap() - cosine).powi(5)
+    }
+}
+
 impl<T> Material<T> for Dielectric<T>
 where
     T: Float,
@@ -100,7 +112,10 @@ where
 
         let unit_vector = ray_in.get_direction().unit_vector();
 
-        let cos_theta = [(unit_vector * T::from(-1).unwrap()).dot(&record.normal), T::from(1.0).unwrap()]
+        let cos_theta = [
+            (unit_vector * T::from(-1).unwrap()).dot(&record.normal),
+            T::from(1.0).unwrap(),
+        ]
         .iter()
         .fold(T::infinity(), |a, &b| a.min(b));
         let sin_theta = (T::from(1.0).unwrap() - cos_theta * cos_theta).sqrt();
@@ -112,7 +127,9 @@ where
         };
 
         // no solution, so cannot refract in some cases
-        let direction  = if ri * sin_theta > T::from(1.0).unwrap() {
+        let direction = if ri * sin_theta > T::from(1.0).unwrap()
+            || Self::reflectance(cos_theta, ri) > T::from(rand_float()).unwrap()
+        {
             unit_vector.reflect(record.normal)
         } else {
             unit_vector.refract(record.normal, ri)
