@@ -25,17 +25,42 @@ impl Default for Camera {
         let image_width = 400.0;
 
         let focal_length = 1.0;
-        let viewport_height = 2.0;
 
         let samples_per_pixel = 50;
 
         let max_depth = 10;
 
+        let fov = 90.0;
+
+        Self::new(
+            aspect_ratio,
+            image_width,
+            focal_length,
+            samples_per_pixel,
+            max_depth,
+            fov,
+        )
+    }
+}
+
+impl Camera {
+    pub fn new(
+        aspect_ratio: f64,
+        image_width: f64,
+        focal_length: f64,
+        samples_per_pixel: i32,
+        max_depth: i32,
+        fov: f64,
+    ) -> Self {
         // computed stuff goes here
         let mut image_height = image_width / aspect_ratio;
         if image_height < 1.0 {
             image_height = 1.0;
         }
+
+        let theta = fov.to_radians();
+        let h = (theta / 2.0).tan();
+        let viewport_height = 2.0 * h * focal_length;
 
         let viewport_width = viewport_height * (image_width / image_height);
         let center = Vec3::new(0.0, 0.0, 0.0);
@@ -74,9 +99,7 @@ impl Default for Camera {
             progress,
         }
     }
-}
 
-impl Camera {
     pub fn render(&self, world: HittableList<f64>) {
         println!("P3\n{} {}\n255", self.image_width, self.image_height);
 
