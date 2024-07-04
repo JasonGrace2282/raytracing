@@ -24,33 +24,40 @@ impl Default for Camera {
         let aspect_ratio = 16.0 / 9.0;
         let image_width = 400.0;
 
-        let focal_length = 1.0;
+        let samples_per_pixel = 100;
 
-        let samples_per_pixel = 50;
+        let max_depth = 50;
 
-        let max_depth = 10;
+        let vfov = 20.0;
 
-        let fov = 90.0;
+        let center = Point::new(-2.0, 2.0, 1.0); // where camera is located
+        let lookat = Point::new(-0.0, -0.0, -1.0); // where it's looking
+        let vup = Vec3::new(0.0, 1.0, 0.0); // the direction up relative to the camera
 
         Self::new(
             aspect_ratio,
             image_width,
-            focal_length,
             samples_per_pixel,
             max_depth,
-            fov,
+            vfov,
+            center,
+            lookat,
+            vup,
         )
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 impl Camera {
     pub fn new(
         aspect_ratio: f64,
         image_width: f64,
-        focal_length: f64,
         samples_per_pixel: i32,
         max_depth: i32,
-        fov: f64,
+        vfov: f64,
+        center: Vec3<f64>, // lookfrom
+        lookat: Vec3<f64>,
+        vup: Vec3<f64>,
     ) -> Self {
         // computed stuff goes here
         let mut image_height = image_width / aspect_ratio;
@@ -58,22 +65,24 @@ impl Camera {
             image_height = 1.0;
         }
 
-        let theta = fov.to_radians();
+        let focal_length = (center - lookat).length();
+
+        let theta = vfov.to_radians();
         let h = (theta / 2.0).tan();
         let viewport_height = 2.0 * h * focal_length;
+        let viewport_width = aspect_ratio * viewport_height;
 
-        let viewport_width = viewport_height * (image_width / image_height);
-        let center = Vec3::new(0.0, 0.0, 0.0);
+        let w = (center - lookat).unit_vector();
+        let u = vup.cross(&w).unit_vector();
+        let v = w.cross(&u);
 
-        // viewport stuff
-        let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
-        let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
+        let viewport_u = u * viewport_width;
+        let viewport_v = v * -viewport_height;
 
         let pixel_delta_u = viewport_u / image_width;
         let pixel_delta_v = viewport_v / image_height;
 
-        let viewport_upper_left =
-            center - Vec3::new(0.0, 0.0, focal_length) - viewport_u / 2.0 - viewport_v / 2.0;
+        let viewport_upper_left = center - (w * focal_length) - viewport_u / 2.0 - viewport_v / 2.0;
         let pixel100_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) * 0.5;
 
         let sample_pixel_scale = 1.0 / samples_per_pixel as f64;
