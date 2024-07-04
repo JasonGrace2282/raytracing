@@ -7,7 +7,16 @@ pub fn rand_in_unit_sphere() -> Vec3<f64> {
     loop {
         let p = Vec3::<f64>::rand_from_range(-1.0, 1.0);
         if p.length_squared() < 1.0 {
-            return p;
+            break p;
+        }
+    }
+}
+
+pub fn rand_in_unit_disk() -> Vec3<f64> {
+    loop {
+        let p = Vec3::new(rand_from_range(-1.0..1.0), rand_from_range(-1.0..1.0), 0.0);
+        if p.length_squared() < 1.0 {
+            break p;
         }
     }
 }
