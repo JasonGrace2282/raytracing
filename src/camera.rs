@@ -3,7 +3,6 @@ use crate::{
     utils::{rand_float, write_color, Color, Interval, Point, Ray, Vec3, rand_in_unit_disk},
 };
 use indicatif::{ProgressBar, ProgressStyle};
-use num_traits::Float;
 
 #[derive(Debug)]
 pub struct Camera {
@@ -26,20 +25,20 @@ impl Default for Camera {
     fn default() -> Self {
         // hardcoded
         let aspect_ratio = 16.0 / 9.0;
-        let image_width = 400.0;
+        let image_width = 1200.0;
 
-        let samples_per_pixel = 100;
+        let samples_per_pixel = 500;
 
         let max_depth = 50;
 
         let vfov = 20.0;
 
-        let center = Point::new(-2.0, 2.0, 1.0); // where camera is located
-        let lookat = Point::new(-0.0, -0.0, -1.0); // where it's looking
+        let center = Point::new(13.0, 2.0, 3.0); // where camera is located
+        let lookat = Point::new(0.0, 0.0, 0.0); // where it's looking
         let vup = Vec3::new(0.0, 1.0, 0.0); // the direction up relative to the camera
 
-        let defocus_angle = 10.0;
-        let focus_dist = 3.4;
+        let defocus_angle = 0.6;
+        let focus_dist = 10.0;
 
         Self::new(
             aspect_ratio,
