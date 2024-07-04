@@ -1,5 +1,4 @@
 use num_traits::Float;
-use std::convert::From;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 use crate::utils::{rand_float, rand_from_range};
@@ -41,6 +40,17 @@ impl<T> Vec3<T> {
         Vec3 { x, y, z }
     }
 
+    pub fn map<U, F>(self, mut f: F) -> Vec3<U>
+    where
+        F: FnMut(T) -> U
+    {
+        Vec3 {
+            x: f(self.x),
+            y: f(self.y),
+            z: f(self.z),
+        }
+    }
+
     pub fn rand() -> Vec3<f64> {
         Vec3::new(rand_float(), rand_float(), rand_float())
     }
@@ -50,8 +60,26 @@ impl<T> Vec3<T> {
             rand_from_range(min..max),
             rand_from_range(min..max),
             rand_from_range(min..max),
-        )
+        ) }
+}
+
+impl<T> Vec3<T>
+where
+    T: Clone
+{
+    pub fn splat(v: T) -> Vec3<T> {
+        Self::new(v.clone(), v.clone(), v)
     }
+}
+
+impl<T> Vec3<T>
+where
+    T: Copy
+{
+    pub const fn to_array(&self) -> [T; 3] {
+        [self.x, self.y, self.z]
+    }
+
 }
 
 impl<T> Vec3<T>
@@ -78,6 +106,15 @@ where
     pub fn near_zero(&self) -> bool {
         let s = T::from(1e-8).unwrap();
         self.x.abs() < s && self.y.abs() < s && self.z.abs() < s
+    }
+
+    pub fn astype<U: Float>(&self) -> Vec3<U>
+    {
+        Vec3 {
+            x: U::from(self.x).unwrap(),
+            y: U::from(self.y).unwrap(),
+            z: U::from(self.z).unwrap(),
+        }
     }
 }
 
@@ -223,17 +260,5 @@ where
     }
 }
 
-impl<T> From<T> for Vec3<T>
-where
-    T: Copy,
-{
-    fn from(value: T) -> Vec3<T> {
-        Self {
-            x: value,
-            y: value,
-            z: value,
-        }
-    }
-}
 
 pub type Point<T> = Vec3<T>;

@@ -11,8 +11,8 @@ fn main() {
 
     let ground = Rc::new(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
     let center = Rc::new(Lambertian::new(Color::new(0.1, 0.2, 0.5)));
-    let left = Rc::new(Metal::new(Color::new(0.8, 0.8, 0.8)));
-    let right = Rc::new(Metal::new(Color::new(0.8, 0.6, 0.2)));
+    let left = Rc::new(Metal::new(Color::new(0.8, 0.8, 0.8), Some(0.3)));
+    let right = Rc::new(Metal::new(Color::new(0.8, 0.6, 0.2), Some(1.0)));
 
     world.add(Rc::new(Sphere::new(
         Point::new(0.0, -100.5, -1.0),

@@ -27,12 +27,13 @@ impl<T> Lambertian<T> {
 
 impl<T> Material<T> for Lambertian<T>
 where
-    T: Float,
+    T: Float + From<f64>,
     Vec3<T>: From<Vec3<f64>>,
 {
-    fn scatter(&self, _ray_in: &Ray<T>, record: &HitRecord<T>) -> Option<(Color<T>, Ray<T>)> {
+    fn scatter(&self, _ray_in: &Ray<T>, record: &HitRecord<T>) -> Option<(Color<T>, Ray<T>)>
+    {
         let mut scatter_direction =
-            record.normal + Into::<Vec3<T>>::into(rand_in_unit_sphere()).unit_vector();
+            record.normal + rand_in_unit_sphere().map(Into::into).unit_vector();
 
         if scatter_direction.near_zero() {
             scatter_direction = record.normal;
@@ -47,20 +48,28 @@ where
 #[derive(Debug)]
 pub struct Metal<T> {
     albedo: Vec3<T>,
+    fuzziness: T,
 }
 
 impl<T> Metal<T> {
-    pub fn new(albedo: Color<T>) -> Metal<T> {
-        Self { albedo }
+    pub fn new(albedo: Color<T>, fuzziness: Option<T>) -> Metal<T>
+    where
+        T: Float
+    {
+        Self {
+            albedo,
+            fuzziness: fuzziness.unwrap_or(T::from(1.0).unwrap())
+        }
     }
 }
 
 impl<T> Material<T> for Metal<T>
 where
-    T: Float,
+    T: Float + From<f64>,
 {
     fn scatter(&self, ray_in: &Ray<T>, record: &HitRecord<T>) -> Option<(Color<T>, Ray<T>)> {
-        let reflected = reflect(*ray_in.get_direction(), record.normal);
+        let mut reflected = reflect(*ray_in.get_direction(), record.normal);
+        reflected = reflected.unit_vector() + rand_in_unit_sphere().map(Into::into) * self.fuzziness;
         let scattered = Ray::new(record.point, reflected);
         let attenuation = self.albedo;
         Some((attenuation, scattered))
