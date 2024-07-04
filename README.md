@@ -2,4 +2,5 @@
 Writing my own raytracer (based off https://raytracing.github.io/)
 
 ## Images
-![Basic Sphere](https://github.com/JasonGrace2282/raytracing/assets/110117391/6306b04c-012a-46c3-9240-7e02385c36ea)
+![image](https://github.com/JasonGrace2282/raytracing/assets/110117391/7dbee9f9-4bec-467d-9ca6-abdb30e331cc)
+
