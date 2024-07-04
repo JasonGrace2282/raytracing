@@ -20,14 +20,6 @@ pub fn random_on_hemisphere(normal: &Vec3<f64>) -> Vec3<f64> {
     on_unit_sphere * -1.0
 }
 
-#[inline]
-pub fn reflect<T>(v: Vec3<T>, n: Vec3<T>) -> Vec3<T>
-where
-    T: Float,
-{
-    v - n * T::from(2.0).unwrap() * v.dot(&n)
-}
-
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3<T> {
     pub x: T,
@@ -42,7 +34,7 @@ impl<T> Vec3<T> {
 
     pub fn map<U, F>(self, mut f: F) -> Vec3<U>
     where
-        F: FnMut(T) -> U
+        F: FnMut(T) -> U,
     {
         Vec3 {
             x: f(self.x),
@@ -60,12 +52,13 @@ impl<T> Vec3<T> {
             rand_from_range(min..max),
             rand_from_range(min..max),
             rand_from_range(min..max),
-        ) }
+        )
+    }
 }
 
 impl<T> Vec3<T>
 where
-    T: Clone
+    T: Clone,
 {
     pub fn splat(v: T) -> Vec3<T> {
         Self::new(v.clone(), v.clone(), v)
@@ -74,12 +67,11 @@ where
 
 impl<T> Vec3<T>
 where
-    T: Copy
+    T: Copy,
 {
     pub const fn to_array(&self) -> [T; 3] {
         [self.x, self.y, self.z]
     }
-
 }
 
 impl<T> Vec3<T>
@@ -108,13 +100,23 @@ where
         self.x.abs() < s && self.y.abs() < s && self.z.abs() < s
     }
 
-    pub fn astype<U: Float>(&self) -> Vec3<U>
-    {
-        Vec3 {
-            x: U::from(self.x).unwrap(),
-            y: U::from(self.y).unwrap(),
-            z: U::from(self.z).unwrap(),
-        }
+    #[inline]
+    pub fn reflect(&self, n: Vec3<T>) -> Vec3<T> {
+        *self - n * T::from(2.0).unwrap() * self.dot(&n)
+    }
+
+    #[inline]
+    pub fn refract(&self, n: Vec3<T>, eta_by_etap: T) -> Vec3<T> {
+        let cos_theta = [
+            (*self * T::from(-1.0).unwrap()).dot(&n),
+            T::from(1.0).unwrap(),
+        ]
+        .iter()
+        .fold(T::infinity(), |a, &b| a.min(b));
+        let r_out_perp = (*self + n * cos_theta) * eta_by_etap;
+        let r_out_parallel =
+            n * -((T::from(1.0).unwrap() - r_out_perp.length_squared()).abs()).sqrt();
+        r_out_perp + r_out_parallel
     }
 }
 
@@ -259,6 +261,5 @@ where
         self.z /= other;
     }
 }
-
 
 pub type Point<T> = Vec3<T>;

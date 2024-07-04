@@ -15,7 +15,7 @@ pub struct HitRecord<T> {
 
 impl<T> HitRecord<T>
 where
-    T: Copy + Float,
+    T: Float,
 {
     pub fn new(
         point: Point<T>,

@@ -1,7 +1,7 @@
 use raytrace::{
     camera::Camera,
     hit::HittableList,
-    material::{Lambertian, Metal},
+    material::{Dielectric, Lambertian, Metal},
     sphere::Sphere,
     utils::{Color, Point, Rc},
 };
@@ -11,7 +11,7 @@ fn main() {
 
     let ground = Rc::new(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
     let center = Rc::new(Lambertian::new(Color::new(0.1, 0.2, 0.5)));
-    let left = Rc::new(Metal::new(Color::new(0.8, 0.8, 0.8), Some(0.3)));
+    let left = Rc::new(Dielectric::new(1.0 / 1.33));
     let right = Rc::new(Metal::new(Color::new(0.8, 0.6, 0.2), Some(1.0)));
 
     world.add(Rc::new(Sphere::new(
