@@ -1,6 +1,7 @@
-use winit::{event::WindowEvent, window::Window};
-use wgpu::util::DeviceExt;
+use crate::texture::Texture;
 use crate::vertex::{self, Vertex};
+use wgpu::util::DeviceExt;
+use winit::{event::WindowEvent, window::Window};
 
 pub struct State<'a> {
     surface: wgpu::Surface<'a>,
@@ -16,6 +17,7 @@ pub struct State<'a> {
     vertex_buffer: wgpu::Buffer,
     index_buffer: wgpu::Buffer, // stores the indices to be reused in triangles
     num_indices: u32,
+    diffuse_bind_group: wgpu::BindGroup,
 }
 
 impl<'a> State<'a> {
@@ -79,11 +81,54 @@ impl<'a> State<'a> {
             desired_maximum_frame_latency: 2,
         };
 
+        let diffuse_bytes = include_bytes!("../textures/happy-tree.png");
+        let diffuse_texture =
+            Texture::from_bytes(&device, &queue, diffuse_bytes, "happy-tree.png").unwrap();
+        let texture_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                label: Some("Texture Bind Group Layout"),
+                entries: &[
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 0,
+                        visibility: wgpu::ShaderStages::FRAGMENT,
+                        ty: wgpu::BindingType::Texture {
+                            // here
+                            sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                            view_dimension: wgpu::TextureViewDimension::D2,
+                            multisampled: false,
+                        },
+                        count: None,
+                    },
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 1,
+                        visibility: wgpu::ShaderStages::FRAGMENT,
+                        // should match the filterable field of the texture
+                        ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                        count: None,
+                    },
+                ],
+            });
+
+        let diffuse_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("diffuse_bind_group"),
+            layout: &texture_bind_group_layout,
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: wgpu::BindingResource::TextureView(&diffuse_texture.view),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: wgpu::BindingResource::Sampler(&diffuse_texture.sampler),
+                },
+            ],
+        });
+
         let shader = device.create_shader_module(wgpu::include_wgsl!("../shaders/shader.wgsl"));
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Render Pipeline Layout"),
-                bind_group_layouts: &[],
+                bind_group_layouts: &[&texture_bind_group_layout],
                 push_constant_ranges: &[],
             });
 
@@ -94,9 +139,7 @@ impl<'a> State<'a> {
             vertex: wgpu::VertexState {
                 module: &shader,
                 entry_point: "vs_main",
-                buffers: &[
-                    Vertex::desc(),
-                ],
+                buffers: &[Vertex::desc()],
                 compilation_options: wgpu::PipelineCompilationOptions::default(),
             },
             fragment: Some(wgpu::FragmentState {
@@ -156,6 +199,7 @@ impl<'a> State<'a> {
             vertex_buffer,
             index_buffer,
             num_indices,
+            diffuse_bind_group,
         }
     }
 
@@ -173,6 +217,7 @@ impl<'a> State<'a> {
     }
 
     /// whether the main loop should stop processing the event
+    #[allow(unused_variables)]
     pub fn input(&mut self, event: &WindowEvent) -> bool {
         false
     }
@@ -214,6 +259,7 @@ impl<'a> State<'a> {
             });
 
             render_pass.set_pipeline(&self.render_pipeline);
+            render_pass.set_bind_group(0, &self.diffuse_bind_group, &[]);
             render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
             render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
             // 3 vertices for a triangle, 1 instance
