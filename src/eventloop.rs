@@ -34,18 +34,19 @@ pub async fn run() {
                     state.resize(*ph_size);
                 },
                 WindowEvent::RedrawRequested => {
+                    state.window().request_redraw();
                     state.update();
                     match state.render() {
                         Ok(_) => {}
                         // Reconfigure the surface if lost
-                        Err(wgpu::SurfaceError::Lost) => state.resize(state.size),
+                        Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => state.resize(state.size),
                         // The system is out of memory, we should probably quit
                         Err(wgpu::SurfaceError::OutOfMemory) => {
                             log::warn!("Out of memory, quitting");
                             control_flow.exit();
                         }
                         // All other errors (Outdated, Timeout) should be resolved by the next frame
-                        Err(e) => eprintln!("{:?}", e),
+                        Err(wgpu::SurfaceError::Timeout) => log::warn!("Timeout, retrying next frame"),
                     }
                 },
                 _ => {},
