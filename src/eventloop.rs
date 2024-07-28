@@ -5,7 +5,7 @@ use winit::{
     window::WindowBuilder,
 };
 
-use crate::state::State;
+use renderer::state::State;
 
 pub async fn run() {
     env_logger::init();

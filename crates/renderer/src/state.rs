@@ -88,7 +88,7 @@ impl<'a> State<'a> {
             desired_maximum_frame_latency: 2,
         };
 
-        let diffuse_bytes = include_bytes!("../textures/happy-tree.png");
+        let diffuse_bytes = include_bytes!("textures/happy-tree.png");
         let diffuse_texture =
             Texture::from_bytes(&device, &queue, diffuse_bytes, "happy-tree.png").unwrap();
         let texture_bind_group_layout =
@@ -177,7 +177,7 @@ impl<'a> State<'a> {
             layout: &camera_bind_group_layout,
         });
 
-        let shader = device.create_shader_module(wgpu::include_wgsl!("../shaders/shader.wgsl"));
+        let shader = device.create_shader_module(wgpu::include_wgsl!("shaders/shader.wgsl"));
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Render Pipeline Layout"),

@@ -1,0 +1,19 @@
+[package]
+name = "raytracing"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bytemuck = { version = "1.6.0", features = ["derive"] }
+env_logger = "0.11.3"
+indicatif = "0.17.8"
+log = "0.4.22"
+num-traits = "0.2.19"
+pollster = "0.3.0"
+rand = "0.8.5"
+winit = { version = "0.29", features = ["rwh_05"] }
+wgpu = "0.20.1"
+anyhow = "1.0.86"
+cgmath = "0.18.0"
+
+renderer = { path = "../renderer" }
