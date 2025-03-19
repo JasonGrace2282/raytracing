@@ -1,5 +1,5 @@
 ## Raytracing
-Writing my own raytracer (based off https://raytracing.github.io/)
+Writing my own raytracer
 
 ## Images
 ![image](image.png)
